@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os, random, joblib
+import os, random, joblib, statistics
 import scipy.stats
 import sklearn as sk
 from sklearn.svm import SVC
@@ -47,7 +47,6 @@ features_us_stories = []
 for i in range(1,6,1):
     single_set = features_us_stories_df.loc[features_us_stories_df['fold'] == i]["features"].tolist()
     features_us_stories.append(single_set)
-
 
 # Defining ml_train
 def ml_train(train, train_name, feature_lists, kernel, save):
@@ -116,7 +115,7 @@ def ml_train(train, train_name, feature_lists, kernel, save):
             pd.DataFrame(validation_confusion_matrices[n-1]).to_csv(f"./predictions/validation/{train_name}/{train_name}_{kernel}_confusion_matrix_{n}.csv", sep=',', index = True)
     
     # Return the kernel + the 4 lists
-    return kernel, validation_classification_reports, validation_confusion_matrices, validation_model_predictions
+    return validation_classification_reports, validation_confusion_matrices, validation_model_predictions
 
 # Defining ml_test
 def ml_test(train_name, test_name, kernel, save, test, feature_lists):
@@ -141,8 +140,6 @@ def ml_test(train_name, test_name, kernel, save, test, feature_lists):
         # Retrieving performance measures
         classif_report = pd.DataFrame(classification_report(testY, predictions, output_dict = True))
         conf_matrix = pd.DataFrame(confusion_matrix(testY, predictions))
-
-        #print(f"{classif_report} \n new \n")
 
         # Loading the performance into the empty lists
         classification_reports.append(classif_report)
@@ -179,39 +176,97 @@ def ml_test(train_name, test_name, kernel, save, test, feature_lists):
     return classification_reports, confusion_matrices, model_predictions, ensemble_classification_report, ensemble_confusion_matrix
 
 # Training models
-ml_train(train = data_dk_stories, train_name = "dk_stories", feature_lists = features_dk_stories, kernel = "rbf", save = True)
-ml_train(train = data_dk_triangles, train_name = "dk_triangles", feature_lists = features_dk_triangles, kernel = "rbf", save = True)
-ml_train(train = data_us_stories, train_name = "us_stories", feature_lists = features_us_stories, kernel = "rbf", save = True)
+output = ml_train(train = data_dk_stories, train_name = "dk_stories", feature_lists = features_dk_stories, kernel = "rbf", save = True)
+output = ml_train(train = data_dk_triangles, train_name = "dk_triangles", feature_lists = features_dk_triangles, kernel = "rbf", save = True)
+output = ml_train(train = data_us_stories, train_name = "us_stories", feature_lists = features_us_stories, kernel = "rbf", save = True)
 
 # Testing using dk_stories
-ml_test(train_name = "dk_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_dk_stories, feature_lists = features_dk_stories)
-ml_test(train_name = "dk_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_dk, feature_lists = features_dk_stories)
-ml_test(train_name = "dk_stories", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_stories, feature_lists = features_dk_stories)
+output = ml_test(train_name = "dk_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_dk_stories, feature_lists = features_dk_stories)
+output = ml_test(train_name = "dk_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_dk, feature_lists = features_dk_stories)
+output = ml_test(train_name = "dk_stories", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_stories, feature_lists = features_dk_stories)
 
 # Testing using dk_triangles
-ml_test(train_name = "dk_triangles", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_triangles, feature_lists = features_dk_triangles)
-ml_test(train_name = "dk_triangles", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_dk, feature_lists = features_dk_triangles)
-ml_test(train_name = "dk_triangles", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_triangles_test_on_dk_triangles, feature_lists = features_dk_triangles)
+output = ml_test(train_name = "dk_triangles", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_triangles, feature_lists = features_dk_triangles)
+output = ml_test(train_name = "dk_triangles", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_dk, feature_lists = features_dk_triangles)
+output = ml_test(train_name = "dk_triangles", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_triangles_test_on_dk_triangles, feature_lists = features_dk_triangles)
 
 # Testing using us_stories
-ml_test(train_name = "us_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_not_us, feature_lists = features_us_stories)
-ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_us_stories, feature_lists = features_us_stories)
+output = ml_test(train_name = "us_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_not_us, feature_lists = features_us_stories)
+output = ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_us_stories, feature_lists = features_us_stories)
 
 
 
+# Looking at F1-scores!!! Looks shitty :'(
+# Training models
+output = ml_train(train = data_dk_stories, train_name = "dk_stories", feature_lists = features_dk_stories, kernel = "rbf", save = True)
+classification_reports, confusion_matrices, model_predictions = output
+macro_avg_f1 = []
+for i in range(0,5,1):
+    macro_avg_f1.append(classification_reports[i].iloc[2,4])
+statistics.mean(macro_avg_f1) # Mean of validation macro average f1 scores
+# .67
 
+output = ml_train(train = data_dk_triangles, train_name = "dk_triangles", feature_lists = features_dk_triangles, kernel = "rbf", save = True)
+classification_reports, confusion_matrices, model_predictions = output
+macro_avg_f1 = []
+for i in range(0,5,1):
+    macro_avg_f1.append(classification_reports[i].iloc[2,4]) 
+statistics.mean(macro_avg_f1) # Mean of validation macro average f1 scores
+# .7
 
+output = ml_train(train = data_us_stories, train_name = "us_stories", feature_lists = features_us_stories, kernel = "rbf", save = True)
+classification_reports, l, l = output
+macro_avg_f1 = []
+for i in range(0,5,1):
+    macro_avg_f1.append(classification_reports[i].iloc[2,4])
+statistics.mean(macro_avg_f1) # Mean of validation macro average f1 scores
+# .65
 
 
+# Testing using dk_stories
+output = ml_test(train_name = "dk_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_dk_stories, feature_lists = features_dk_stories)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 57
 
+output = ml_test(train_name = "dk_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_dk, feature_lists = features_dk_stories)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 43
 
+output = ml_test(train_name = "dk_stories", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_stories_test_on_not_stories, feature_lists = features_dk_stories)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 67
 
 
+# Testing using dk_triangles
+output = ml_test(train_name = "dk_triangles", test_name = "dk_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_triangles, feature_lists = features_dk_triangles)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 68
 
+output = ml_test(train_name = "dk_triangles", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_dk, feature_lists = features_dk_triangles)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 46
 
+output = ml_test(train_name = "dk_triangles", test_name = "dk_triangles", kernel = "rbf", save = True, test = model_dk_triangles_test_on_dk_triangles, feature_lists = features_dk_triangles)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 69
 
 
+# Testing using us_stories
+output = ml_test(train_name = "us_stories", test_name = "dk_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_not_us, feature_lists = features_us_stories)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 56
 
+output = ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_us_stories, feature_lists = features_us_stories)
+l, l, l, ensemble_classification_report, l = output
+ensemble_classification_report.iloc[2,4] # Macro average f1 score
+# 38
 
 
 
@@ -285,6 +340,21 @@ ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", sav
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Old functions:
 
 ####################################################### Training and validation #######################################################
 # Define function for training/validation
@@ -471,20 +541,3 @@ def ml_test(train, train_name, test_name,  test, feature_lists, kernel = "linear
         ensemble_conf_matrix.to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_ensemble_conf_matrix.csv", sep=',', index = True)
 
     return(classif_reports, conf_mtxs, model_predictions, ensemble_classif_report, ensemble_conf_matrix)
-
-# Running the ML_test
-# Danish story model:
-#output_test = ml_test(train = data_dk_stories, train_name = "dk_stories", test_name = "dk_stories", test = egemaps_not_us_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-output_test = ml_test(train = data_dk_stories, train_name = "dk_stories", test_name = "dk_triangles", test = egemaps_dk_not_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-output_test = ml_test(train = data_dk_stories, train_name = "dk_stories", test_name = "us_stories", test = egemaps_not_dk_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-
-# Danish triangle model:
-output_test = ml_test(train = data_dk_triangles, train_name = "dk_triangles", test_name = "dk_stories", test = egemaps_dk_not_triangles, feature_lists = features_dk_triangles, kernel = "rbf", save = True)
-#output_test = ml_test(train = data_dk_triangles, train_name = "dk_triangles", test_name = "dk_triangles", test = egemaps_not_us_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-#output_test = ml_test(train = data_dk_triangles, train_name = "dk_triangles", test_name = "us_stories", test = egemaps_not_dk_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-
-# US story model:
-output_test = ml_test(train = data_us_stories, train_name = "us_stories", test_name = "dk_stories", test = egemaps_not_us_stories, feature_lists = features_us_stories, kernel = "rbf", save = True)
-#output_test = ml_test(train = data_us_stories, train_name = "us_stories", test_name = "dk_triangles", test = egemaps_not_us_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-#output_test = ml_test(train = data_us_stories, train_name = "us_stories", test_name = "us_stories", test = egemaps_not_us_stories, feature_lists = features_dk_stories, kernel = "rbf", save = True)
-
