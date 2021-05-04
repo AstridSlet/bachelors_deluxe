@@ -22,7 +22,7 @@ This repository has the following directory structure:
 
 | Column | Description|
 |--------|:-----------|
-```data```| Is meant to contain the testing and training data
+```data```| Is meant to contain the training and the testing data, a long with the feature lists and the models when the models have been trained
 ```predictions``` | Contains the output of the ML process - dataframes, confusion matrices and classification reports
 
 Furthermore it contains the files:
