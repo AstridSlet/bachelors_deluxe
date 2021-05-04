@@ -6,14 +6,14 @@ For running the scripts I'd recommend doing the following from your terminal (an
 
 __MAC/LINUX
 ```bash
-git clone https://github.com/emiltj/cds-visual.git
-cd cds-visual
+git clone https://github.com/emiltj/bachelors_deluxe.git
+cd bachelors_deluxe
 bash ./create_bach_venv.sh
 ```
 __WINDOWS:__
 ```bash
-git clone https://github.com/emiltj/cds-visual.git
-cd cds-visual
+git clone https://github.com/emiltj/bachelors_deluxe.git
+cd bachelors_deluxe
 bash ./create_bach_venv_win.sh
 ```
 
