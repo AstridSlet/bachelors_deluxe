@@ -1,2 +1,3 @@
 bach_venv/
-data/*.csv
+data/*
+!data/models

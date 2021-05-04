@@ -81,6 +81,8 @@ def ml_train(train, train_name, feature_lists, kernel, save):
 
         # Fit model to training data and save the model
         model = model.fit(trainX, trainY)
+        if not os.path.exists(f'./data/models/{train_name}/'):
+            os.makedirs(f'./data/models/{train_name}/')
         joblib.dump(model, f'./data/models/{train_name}/{kernel}_{n}.pkl')
 
         # Predict validation set with model
