@@ -148,39 +148,21 @@ def ml_test(train_name, test_name, kernel, save, test, feature_lists):
     # Getting majority decision of the 5 models and appending it to the df "model_predictions" 
     ensemble_predictions = model_predictions[["model_1_predicted_diagnosis", "model_2_predicted_diagnosis", "model_3_predicted_diagnosis", "model_4_predicted_diagnosis", "model_5_predicted_diagnosis"]].mode(axis = 1)
     
-    # Adding Gender to be able to see performance of the ensemble model across genders
-    ensemble_predictions["Gender"] = test["Gender"]
-
     # Appending new column with ensemble predictions
     model_predictions["ensemble_predictions"] = ensemble_predictions.iloc[:,0]
     
-    # Appending new column with sex of participants
-    model_predictions["Gender"] = ensemble_predictions.iloc[:,1]
-
     # Getting the classification report + confusion matrix for the ensemble model. Both sexes.
     ensemble_classification_report = pd.DataFrame(classification_report(testY, ensemble_predictions.iloc[:,0], output_dict = True))
     ensemble_confusion_matrix = pd.DataFrame(confusion_matrix(testY, ensemble_predictions.iloc[:,0]))
-
-    # Getting the classification report + confusion matrix for the ensemble model. Female
-    ensemble_classification_report_female = pd.DataFrame(classification_report(test[test["Gender"] == "Female"]["Diagnosis"], ensemble_predictions[ensemble_predictions["Gender"] == "Female"].iloc[:,0], output_dict = True))
-    ensemble_confusion_matrix_female = pd.DataFrame(confusion_matrix(test[test["Gender"] == "Female"]["Diagnosis"], ensemble_predictions[ensemble_predictions["Gender"] == "Female"].iloc[:,0]))
-
-    # Getting the classification report + confusion matrix for the ensemble model. Male
-    ensemble_classification_report_male = pd.DataFrame(classification_report(test[test["Gender"] == "Male"]["Diagnosis"], ensemble_predictions[ensemble_predictions["Gender"] == "Male"].iloc[:,0], output_dict = True))
-    ensemble_confusion_matrix_male = pd.DataFrame(confusion_matrix(test[test["Gender"] == "Male"]["Diagnosis"], ensemble_predictions[ensemble_predictions["Gender"] == "Male"].iloc[:,0]))
 
     # Saving output
     if save == True:
         # Save the predictions
         model_predictions.to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_model_predictions.csv", sep=',', index = True)
 
-        # Save the ensemble classification report + confusion matrix - both sexes and males and females respectively
+        # Save the ensemble classification report + confusion matrix - both sexes
         pd.DataFrame(ensemble_classification_report).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_classification_report_ensemble.csv", sep=',', index = True)
         pd.DataFrame(ensemble_confusion_matrix).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_confusion_matrix_ensemble.csv", sep=',', index = True)
-        pd.DataFrame(ensemble_classification_report_female).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_classification_report_ensemble_female.csv", sep=',', index = True)
-        pd.DataFrame(ensemble_confusion_matrix_female).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_confusion_matrix_ensemble_female.csv", sep=',', index = True)
-        pd.DataFrame(ensemble_classification_report_male).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_classification_report_ensemble_male.csv", sep=',', index = True)
-        pd.DataFrame(ensemble_confusion_matrix_male).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_confusion_matrix_ensemble_male.csv", sep=',', index = True)
 
         # Save the individual model classification reports + confusion matrices
         for n in index_list:
@@ -190,7 +172,7 @@ def ml_test(train_name, test_name, kernel, save, test, feature_lists):
             # Go through each index in the list of confusion matrices  - save them
             pd.DataFrame(confusion_matrices[n-1]).to_csv(f"./predictions/test/{train_name}/{train_name}_tested_on_{test_name}_{kernel}_confusion_matrix_{n}.csv", sep=',', index = True)
 
-    return classification_reports, confusion_matrices, model_predictions, ensemble_classification_report, ensemble_confusion_matrix, ensemble_classification_report_female, ensemble_confusion_matrix_female, ensemble_classification_report_male, ensemble_confusion_matrix_male
+    return classification_reports, confusion_matrices, model_predictions, ensemble_classification_report, ensemble_confusion_matrix
 
 # Training models (and validating models)
 output = ml_train(train = data_dk_stories, train_name = "dk_stories", feature_lists = features_dk_stories, kernel = "rbf", save = False)
@@ -242,77 +224,43 @@ statistics.mean(macro_avg_f1) # Mean of validation macro average f1 scores for b
 
 # Testing using dk_stories
 output = ml_test(train_name = "dk_stories", test_name = "dk_stories", kernel = "rbf", save = False, test = model_dk_stories_test_on_dk_stories, feature_lists = features_dk_stories)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score for both sexes
 # 57
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.77
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.41
 
 output = ml_test(train_name = "dk_stories", test_name = "us_stories", kernel = "rbf", save = False, test = model_dk_stories_test_on_not_dk, feature_lists = features_dk_stories)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score for both sexes
 # 43
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.17
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.45
 
 output = ml_test(train_name = "dk_stories", test_name = "dk_triangles", kernel = "rbf", save = False, test = model_dk_stories_test_on_not_stories, feature_lists = features_dk_stories)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score for both sexes
 # 67
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.68
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.67
-
 
 # Testing using dk_triangles
 output = ml_test(train_name = "dk_triangles", test_name = "dk_stories", kernel = "rbf", save = False, test = model_dk_triangles_test_on_not_triangles, feature_lists = features_dk_triangles)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score both sexes
 # 68
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.74
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.65
 
 output = ml_test(train_name = "dk_triangles", test_name = "us_stories", kernel = "rbf", save = False, test = model_dk_triangles_test_on_not_dk, feature_lists = features_dk_triangles)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score both sexes
 # 46
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.30
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.47
 
 output = ml_test(train_name = "dk_triangles", test_name = "dk_triangles", kernel = "rbf", save = False, test = model_dk_triangles_test_on_dk_triangles, feature_lists = features_dk_triangles)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score both sexes
 # 69
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.75
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.62
-
 
 # Testing using us_stories
 output = ml_test(train_name = "us_stories", test_name = "dk_stories", kernel = "rbf", save = False, test = model_us_stories_test_on_not_us, feature_lists = features_us_stories)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score both sexes
 # 56
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.68
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.53
 
 output = ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", save = False, test = model_us_stories_test_on_us_stories, feature_lists = features_us_stories)
-l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
+l, l, l, ensemble_classification_report, l  = output
 ensemble_classification_report.iloc[2,4] # Macro average f1 score both sexes
 # 38
-ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for females
-# 0.14
-ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
-# 0.44

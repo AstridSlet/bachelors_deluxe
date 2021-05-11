@@ -1,11 +1,11 @@
 ,fold_5_true_diagnosis,fold_5_predicted_diagnosis
 1,ASD,ASD
 4,ASD,TD
-5,ASD,ASD
+5,ASD,TD
 32,ASD,ASD
 33,ASD,ASD
 40,ASD,ASD
-41,ASD,ASD
+41,ASD,TD
 44,ASD,ASD
 45,ASD,ASD
 56,TD,TD

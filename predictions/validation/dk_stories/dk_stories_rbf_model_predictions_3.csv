@@ -1,7 +1,7 @@
 ,fold_3_true_diagnosis,fold_3_predicted_diagnosis
 6,ASD,TD
 7,ASD,TD
-16,ASD,TD
+16,ASD,ASD
 17,ASD,TD
 22,ASD,TD
 23,ASD,TD
@@ -13,9 +13,9 @@
 63,TD,ASD
 70,TD,TD
 71,TD,TD
-72,TD,ASD
+72,TD,TD
 73,TD,ASD
 84,TD,TD
-85,TD,ASD
+85,TD,TD
 86,TD,TD
 87,TD,TD
