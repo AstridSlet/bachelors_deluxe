@@ -1,7 +1,7 @@
+import scipy.stats
 import pandas as pd
 import numpy as np
 import os, random, joblib, statistics
-import scipy.stats
 import sklearn as sk
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
@@ -212,7 +212,6 @@ output = ml_test(train_name = "us_stories", test_name = "dk_stories", kernel = "
 output = ml_test(train_name = "us_stories", test_name = "us_stories", kernel = "rbf", save = True, test = model_us_stories_test_on_us_stories, feature_lists = features_us_stories)
 
 
-
 ### Looking individually at all the most relevant performances (won't be in the final script on our github) ###
 
 # Training models
@@ -279,8 +278,6 @@ ensemble_classification_report_female.iloc[2,4] # Macro average f1 score for fem
 # 0.74
 ensemble_classification_report_male.iloc[2,4] # Macro average f1 score for males
 # 0.65
-
-
 
 output = ml_test(train_name = "dk_triangles", test_name = "us_stories", kernel = "rbf", save = True, test = model_dk_triangles_test_on_not_dk, feature_lists = features_dk_triangles)
 l, l, l, ensemble_classification_report, l, ensemble_classification_report_female, l, ensemble_classification_report_male, l, = output
